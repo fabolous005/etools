@@ -60,12 +60,15 @@ function etools_smart_find() {
 			eerror "no valid repository name" && return 2;
 		. ./etools-helper.sh
 		if [[ "${2}" == /* ]]; then
+			# shellcheck disable=SC2046
 			_filter $(_formatted_find "$@")
 		else
+			# shellcheck disable=SC2046
 			_filter $(_formatted_find "${1}" "${ETOOLS_REPO_PATH}/${2}")
 		fi
 	else
 		. ./etools-helper.sh
+		# shellcheck disable=SC2046
 		_filter $(_formatted_find "${1}" "/var/db/repos")
 	fi
 	# unset helper functions

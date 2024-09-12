@@ -7,6 +7,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 		_sort_weights \
 		_get_heighest \
 		_sort_table \
+		_etools_print_assoc_array \
 		_filter;
 	do
 		unset $function || echo "failed to unset function: $function"
@@ -15,8 +16,8 @@ fi
 
 function _formatted_find() {
 	if [ -z "${ETOOLS_FIND_COMMAND}" ]; then
-		# Prevent wordsplitting
 		if [ "${ETOOLS_FIND_CMD}" = "fd" ]; then
+			# use wordsplitting
 			# shellcheck disable=SC2086
 			fd $ETOOLS_FIND_ARGS "${1}" "${2}"
 			[ "${ETOOLS_DEBUG}" ] && einfo fd "${1}" "${2}" "$ETOOLS_FIND_ARGS" >&2
@@ -32,29 +33,51 @@ function _formatted_find() {
 }
 
 function _sort_weights() {
-	declare -n arr=$1
+	# declare -n arr=$1
+	echo
 }
 
 function _get_heighest() {
-	echo
+	# declare -n _etools_packages=$1
+	local max_key=""
+    local max_value=-100
+
+    for key in "${!_etools_packages[@]}"; do
+        if (( _etools_packages["$key"] > max_value )); then
+            max_value=${_etools_packages["$key"]}
+            max_key=${key//\"/}
+        fi
+    done
+	echo "$max_key"
 }
 
 function _sort_table() {
-	echo
+	# declare -n _etools_packages_sort_table=$1
+	# _etools_print_assoc_array
+	true
+}
+
+function _etools_print_assoc_array {
+    for key in "${!_etools_packages[@]}"; do
+        echo "$key: ${_etools_packages[$key]}"
+    done
 }
 
 function _filter() {
 	(( $# <= 1 )) && ewarn "No packages found, review config options" && return 1;
-	echo "$@"
-	declare -A packages
+	declare -Ag _etools_packages
 	for package in "$@"; do
-		packages[$(echo "$package" | awk -F'/' '{print $(NF-1)"/"$NF}')]=0
+		# allow indirect reference
+		# shellcheck disable=SC2034
+		_etools_packages[$(echo "$package" | awk -F'/' '{print $(NF-1)"/"$NF}')]=0
 	done
+	local functions=
+	functions="$(declare -F | "${ETOOLS_GREP_CMD}" 'etools_find_sort_' | awk '{print $3}')"
 	for function in \
 		_sort_table \
-		$(declare -F | "${ETOOLS_GREP_CMD}" 'etools_find_sort_') \
-		_get_heighest;
+		${functions[@]};
 	do
-		$function packages
+		$function
 	done
+	_get_heighest 
 }
