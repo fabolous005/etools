@@ -15,10 +15,10 @@ function etools_configure() {
 	# The find command to run
 	[ -z "${ETOOLS_FIND_CMD}" ] && ETOOLS_FIND_CMD="fd"
 	# The Argyments passed to the find command
-	[ -z "${ETOOLS_FIND_ARGS}" ] && ETOOLS_FIND_ARGS="
-	--exclude profile --exclude scripts --exclude eclass --exclude metadata \
-	--exclude app-emacs --exclude dev-ruby --exclude acct-user --exclude acct-group \
-	--type d"
+	[ -z "${ETOOLS_FIND_ARGS}" ] && ETOOLS_FIND_ARGS='''
+	--exclude profile --exclude scripts --exclude eclass --exclude metadata
+	--exclude app-emacs --exclude dev-ruby --exclude acct-user --exclude acct-group
+	--type directory --format '\"{}\"''''
 
 	# [ -z "${ETOOLS_FIND_CMD}" ] && ETOOLS_FIND_CMD="find"
 	# [ -z "${ETOOLS_FIND_ARGS}" ] && \
@@ -37,10 +37,12 @@ function etools_configure() {
 	[ -z "${ETOOLS_REPO_PATH}" ] && ETOOLS_REPO_PATH="/var/db/repos"
 
 
-	[ -z "${COLOR_INFO}" ] && COLOR_INFO='\033[1;34m'
-	[ -z "${COLOR_WARN}" ] && COLOR_WARN='\033[1;33m'
-	[ -z "${COLOR_ERROR}" ] && COLOR_ERROR='\033[1;31m'
+	[ -z "${ETOOLS_COLOR_INFO}" ] && ETOOLS_COLOR_INFO='\033[1;34m'
+	[ -z "${ETOOLS_COLOR_WARN}" ] && ETOOLS_COLOR_WARN='\033[1;33m'
+	[ -z "${ETOOLS_COLOR_ERROR}" ] && ETOOLS_COLOR_ERROR='\033[1;31m'
 
+
+	[ -z "${ETOOLS_GREP_CMD}" ] && ETOOLS_GREP_CMD="rg"
 
 	[ -z "${ETOOLS_DEBUG}" ] && ETOOLS_DEBUG=:
 }
@@ -58,14 +60,13 @@ function etools_smart_find() {
 			eerror "no valid repository name" && return 2;
 		. ./etools-helper.sh
 		if [[ "${2}" == /* ]]; then
-			_filer "$(_formatted_find "$@")"
+			_filter $(_formatted_find "$@")
 		else
-			_filter "$(_formatted_find "${1}" "${ETOOLS_REPO_PATH}/${2}")"
+			_filter $(_formatted_find "${1}" "${ETOOLS_REPO_PATH}/${2}")
 		fi
-
 	else
 		. ./etools-helper.sh
-		_filter "$(_formatted_find "${1}" "/var/db/repos/")"
+		_filter $(_formatted_find "${1}" "/var/db/repos")
 	fi
 	# unset helper functions
 	./etools-helper.sh
@@ -91,17 +92,17 @@ function etools_unset() {
 
 # INFO: einfo function
 einfo() {
-    echo -e " ${COLOR_INFO}*\033[0m $*"
+    echo -e " ${ETOOLS_COLOR_INFO}*\033[0m $*"
 }
 
 # INFO: ewarn function
 ewarn() {
-    echo -e " ${COLOR_WARN}* WARNING:\033[0m $*"
+    echo -e " ${ETOOLS_COLOR_WARN}* WARNING:\033[0m $*"
 }
 
 # INFO: eerror function
 eerror() {
-    echo -e " ${COLOR_ERROR}* ERROR:\033[0m $*"
+    echo -e " ${ETOOLS_COLOR_ERROR}* ERROR:\033[0m $*"
 }
 
 
@@ -110,4 +111,5 @@ if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
 	etools_configure
 else
 	ewarn "this is a library do not execute it, source it instead" >&2
+	return 2;
 fi
