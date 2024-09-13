@@ -73,10 +73,13 @@ function _filter() {
 	done
 	local functions=
 	functions="$(declare -F | "${ETOOLS_GREP_CMD}" 'etools_find_sort_' | awk '{print $3}')"
+	# HACK: iterating over possibly fragile output of splitted functions
+	# leave warning untils this is stable/fixed
 	for function in \
 		_sort_table \
 		${functions[@]};
 	do
+		# TODO: put loop here so not every function has to loop through the array
 		$function
 	done
 	_get_heighest 
