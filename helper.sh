@@ -33,11 +33,9 @@ function _formatted_find() {
 function _set_weights() {
 	for package in "${!_etools_packages[@]}"; do
 		# $function "$key"
-		echo iterated
 		# TODO: figure out why this is not in scope
-		for regex in $package_weights; do
-			echo iterated inner
-			if [[ ${package//\"/} =~ *${regex}* ]]; then
+		for regex in ${!package_weights[@]}; do
+			if [[ ${package//\"/} =~ ^*${regex}*$ ]]; then
 				_etools_packages[${package//\"/}]=${package_weights[$regex]}
 			fi
 		done
@@ -78,7 +76,6 @@ function _filter() {
 	# leave warning untils this is stable/fixed
 	for function in \
 		_set_weights \
-		_etools_print_assoc_array \
 		${functions[@]};
 	do
 		$function

@@ -35,6 +35,7 @@ function etools_smart_find() {
 	fi
 	# unset helper functions
 	./helper.sh
+	unset _etools_packages
 }
 
 
