@@ -32,8 +32,6 @@ function _formatted_find() {
 
 function _set_weights() {
 	for package in "${!_etools_packages[@]}"; do
-		# $function "$key"
-		# TODO: figure out why this is not in scope
 		for regex in ${!package_weights[@]}; do
 			if [[ ${package//\"/} =~ ^*${regex}*$ ]]; then
 				_etools_packages[${package//\"/}]=${package_weights[$regex]}
