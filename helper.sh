@@ -4,9 +4,8 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     # The script is being executed directly
 	for function in \
 		_formatted_find \
-		_sort_weights \
+		_set_weights \
 		_get_heighest \
-		_sort_table \
 		_etools_print_assoc_array \
 		_filter;
 	do
@@ -27,14 +26,22 @@ function _formatted_find() {
 			[ "${ETOOLS_DEBUG}" ] && einfo "${ETOOLS_FIND_CMD}" "${2}" "$ETOOLS_FIND_ARGS" "${1}" >&2
 		fi
 	else
-		echo called fd 3
 		eval '$(echo "${ETOOLS_FIND_COMMAND//\{repo\}/${2}}" | sed -e "s/{package}/${1}/g")'
 	fi
 }
 
-function _sort_weights() {
-	# declare -n arr=$1
-	echo
+function _set_weights() {
+	for package in "${!_etools_packages[@]}"; do
+		# $function "$key"
+		echo iterated
+		# TODO: figure out why this is not in scope
+		for regex in $package_weights; do
+			echo iterated inner
+			if [[ ${package//\"/} =~ *${regex}* ]]; then
+				_etools_packages[${package//\"/}]=${package_weights[$regex]}
+			fi
+		done
+	done
 }
 
 function _get_heighest() {
@@ -51,12 +58,6 @@ function _get_heighest() {
 	echo "$max_key"
 }
 
-function _sort_table() {
-	# declare -n _etools_packages_sort_table=$1
-	# _etools_print_assoc_array
-	true
-}
-
 function _etools_print_assoc_array {
     for key in "${!_etools_packages[@]}"; do
         echo "$key: ${_etools_packages[$key]}"
@@ -69,18 +70,19 @@ function _filter() {
 	for package in "$@"; do
 		# allow indirect reference
 		# shellcheck disable=SC2034
-		_etools_packages[$(echo "$package" | awk -F'/' '{print $(NF-1)"/"$NF}')]=0
+		_etools_packages[$(echo "$package" | tr -d '"' | awk -F'/' '{print $(NF-1)"/"$NF}')]=0
 	done
 	local functions=
 	functions="$(declare -F | "${ETOOLS_GREP_CMD}" 'etools_find_sort_' | awk '{print $3}')"
 	# HACK: iterating over possibly fragile output of splitted functions
 	# leave warning untils this is stable/fixed
 	for function in \
-		_sort_table \
+		_set_weights \
+		_etools_print_assoc_array \
 		${functions[@]};
 	do
-		# TODO: put loop here so not every function has to loop through the array
 		$function
 	done
+	_etools_print_assoc_array
 	_get_heighest 
 }

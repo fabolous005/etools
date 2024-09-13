@@ -46,12 +46,17 @@ function etools_unset() {
 		ETOOLS_FIND_ARGS \
 		ETOOLS_FIND_COMMAND \
 		ETOOLS_REPO_PATH \
-		einfo \
-		ewarn \
-		eerror \
+		ETOOLS_COLOR_INFO \
+		ETOOLS_COLOR_WARN \
+		ETOOLS_COLOR_ERROR \
+		ETOOLS_GREP_CMD \
+		ETOOLS_DEBUG \
 		etools_configure \
 		etools_smart_find \
-		etools_unset;
+		etools_unset \
+		einfo \
+		ewarn \
+		eerror;
 	do
 		unset $variable
 	done

@@ -24,7 +24,7 @@ function _configure() {
 	ETOOLS_FIND_ARGS=${ETOOLS_FIND_ARGS:-'''
 	--exclude profile --exclude scripts --exclude eclass --exclude metadata
 	--exclude app-emacs --exclude dev-ruby --exclude acct-user --exclude acct-group
-	--type directory --format '\"{}\"''''}
+	--type directory --format '"\"{}\""''''}
 
 	# [ -z "${ETOOLS_FIND_CMD}" ] && ETOOLS_FIND_CMD="find"
 	# [ -z "${ETOOLS_FIND_ARGS}" ] && \
