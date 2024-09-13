@@ -1,10 +1,11 @@
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     # The script is being executed directly
-	for function in \
-		_configure;
-	do
-		unset $function || echo "failed to unset function: $function"
-	done
+	# for function in \
+	# 	_configure;
+	# do
+	# 	unset $function || echo "failed to unset function: $function"
+	# done
+	unset _configure || echo "failed to unset function: _configure"
 fi
 
 
@@ -22,9 +23,9 @@ function _configure() {
 	ETOOLS_FIND_CMD=${ETOOLS_FIND_CMD:-"fd"}
 	# The Argyments passed to the find command
 	ETOOLS_FIND_ARGS=${ETOOLS_FIND_ARGS:-'''
-	--exclude profile --exclude scripts --exclude eclass --exclude metadata
+	--exclude profiles --exclude scripts --exclude eclass --exclude metadata
 	--exclude app-emacs --exclude dev-ruby --exclude acct-user --exclude acct-group
-	--type directory --format '"\"{}\""''''}
+	--type directory --format '"\"{}\""' --max-depth 3'''}
 
 	# [ -z "${ETOOLS_FIND_CMD}" ] && ETOOLS_FIND_CMD="find"
 	# [ -z "${ETOOLS_FIND_ARGS}" ] && \

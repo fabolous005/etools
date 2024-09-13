@@ -6,6 +6,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 		_formatted_find \
 		_set_weights \
 		_get_heighest \
+		_default_sort \
 		_etools_print_assoc_array \
 		_filter;
 	do
@@ -33,8 +34,8 @@ function _formatted_find() {
 function _set_weights() {
 	for package in "${!_etools_packages[@]}"; do
 		for regex in ${!package_weights[@]}; do
-			if [[ ${package//\"/} =~ ^*${regex}*$ ]]; then
-				_etools_packages[${package//\"/}]=${package_weights[$regex]}
+			if [[ $package =~ ^*${regex}*$ ]]; then
+				_etools_packages[$package]=${package_weights[$regex]}
 			fi
 		done
 	done
@@ -54,19 +55,40 @@ function _get_heighest() {
 	echo "$max_key"
 }
 
+function _default_sort() {
+	for package in "${!_etools_packages[@]}"; do
+		case $package in
+			*selinux*)
+				_etools_packages["$package"]=$((_etools_packages["$package"] - 30))
+				;;
+		esac
+	done
+}
+
 function _etools_print_assoc_array {
     for key in "${!_etools_packages[@]}"; do
         echo "$key: ${_etools_packages[$key]}"
     done
 }
 
+function _debug_time() {
+	local end_time=$(date +%s%3N)
+	echo $((end_time - start_time))
+}
+
 function _filter() {
+	# local start_time=$(date +%s%3N) && echo 0
+	# _debug_time "$start_time"
 	(( $# <= 1 )) && ewarn "No packages found, review config options" && return 1;
 	declare -Ag _etools_packages
 	for package in "$@"; do
 		# allow indirect reference
 		# shellcheck disable=SC2034
-		_etools_packages[$(echo "$package" | tr -d '"' | awk -F'/' '{print $(NF-1)"/"$NF}')]=0
+		package=${package//\"/}
+		base_name="${package##*/}"        # Get the last part
+		parent_name="${package%/*}"       # Remove the last part
+		parent_name="${parent_name##*/}"  # Get the second-to-last part
+		_etools_packages["$parent_name/$base_name"]=0
 	done
 	local functions=
 	functions="$(declare -F | "${ETOOLS_GREP_CMD}" 'etools_find_sort_' | awk '{print $3}')"
@@ -74,10 +96,11 @@ function _filter() {
 	# leave warning untils this is stable/fixed
 	for function in \
 		_set_weights \
+		_default_sort \
 		${functions[@]};
 	do
 		$function
 	done
-	_etools_print_assoc_array
+	# _etools_print_assoc_array
 	_get_heighest 
 }
