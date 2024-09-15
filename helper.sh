@@ -5,10 +5,12 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 	for function in \
 		_formatted_find \
 		_set_weights \
-		_get_heighest \
+		_get_highest \
+		_get_high \
 		_default_sort \
 		_etools_print_assoc_array \
 		_debug_time \
+		_most_probable \
 		_filter;
 	do
 		unset $function || echo "failed to unset function: $function"
@@ -37,16 +39,16 @@ function _set_weights() {
 		# allow reference to sourced value
 		# shellcheck disable=SC2154
 		for regex in "${!package_weights[@]}"; do
-			if [[ $package =~ ^*${regex}*$ ]]; then
+			if [[ $package =~ ${regex} ]]; then
 				_etools_packages[$package]=${package_weights[$regex]}
 			fi
 		done
 	done
 }
 
-function _get_heighest() {
+function _get_highest() {
 	local max_key=""
-    local max_value=-100
+    local max_value=-100000
 
     for key in "${!_etools_packages[@]}"; do
         if (( _etools_packages["$key"] > max_value )); then
@@ -55,6 +57,35 @@ function _get_heighest() {
         fi
     done
 	echo "$max_key"
+}
+
+function _get_high() {
+	local packages=()
+    local max_value=-100000
+
+    for key in "${!_etools_packages[@]}"; do
+        if (( _etools_packages["$key"] > max_value )); then
+            packages=("\"$key\"")
+            max_value=${_etools_packages[$key]}
+		elif (( _etools_packages[$key] == max_value )); then
+            packages+=("\"$key\"")
+        fi
+    done
+	echo "${packages[@]}"
+}
+
+function _most_probable() {
+	# echo $*
+	# echo $#
+	# echo $1
+	# echo $2
+	(( $# == 2 )) && echo "$2" && return 0;
+	for package in "${@:2}"; do
+		# echo "$package"
+		if [[ ${package//\"/} == *"$1" ]]; then
+			echo "${package//\"/}" && return 0;
+		fi
+	done
 }
 
 function _default_sort() {
@@ -103,5 +134,5 @@ function _filter() {
 		$function
 	done
 	# _etools_print_assoc_array
-	_get_heighest 
+	_get_high
 }
