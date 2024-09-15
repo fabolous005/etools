@@ -32,6 +32,7 @@ function _configure() {
 	--exclude app-emacs --exclude dev-ruby --exclude acct-user --exclude acct-group
 	--type directory --format '"\"{}\""' --max-depth 3 --case-sensitive'''}
 
+	# WARN: this section is not tested
 	# [ -z "${ETOOLS_FIND_CMD}" ] && ETOOLS_FIND_CMD="find"
 	# [ -z "${ETOOLS_FIND_ARGS}" ] && \
 	# 	ETOOLS_FIND_ARGS="\
