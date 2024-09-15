@@ -10,6 +10,10 @@ fi
 
 
 function _configure() {
+	# TODO: maybe fix this
+	# NOTE: setting options other than the defaults and reconfiguring works
+	# switching from custom options to defaults doesn't...
+
 	# Load config for shellcheck
 	# shellcheck source=/etc/etools/etools.conf
 	[ -f "/etc/etools/etools.conf" ] && . "/etc/etools/etools.conf"
@@ -52,5 +56,5 @@ function _configure() {
 
 	ETOOLS_GREP_CMD=${ETOOLS_GREP_CMD:-"rg"}
 
-	ETOOLS_DEBUG=${ETOOLS_DEBUG:-:}
+	ETOOLS_DEBUG=${ETOOLS_DEBUG:-true}
 }

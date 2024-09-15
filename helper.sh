@@ -23,13 +23,14 @@ function _formatted_find() {
 			# use wordsplitting
 			# shellcheck disable=SC2086
 			fd $ETOOLS_FIND_ARGS "${1}" "${2}"
-			[ "${ETOOLS_DEBUG}" ] && einfo fd "${1}" "${2}" "$ETOOLS_FIND_ARGS" >&2
+			[ "$ETOOLS_DEBUG" = "true" ] && einfo fd "${1}" "${2}" "$ETOOLS_FIND_ARGS" >&2
 		else
 			# shellcheck disable=SC2086
 			"$ETOOLS_FIND_CMD" "${2}" $ETOOLS_FIND_ARGS "${1}"
-			[ "${ETOOLS_DEBUG}" ] && einfo "${ETOOLS_FIND_CMD}" "${2}" "$ETOOLS_FIND_ARGS" "${1}" >&2
+			[ "$ETOOLS_DEBUG" = "true" ] && einfo "${ETOOLS_FIND_CMD}" "${2}" "$ETOOLS_FIND_ARGS" "${1}" >&2
 		fi
 	else
+		# TODO: do this with bash expansion only
 		eval '$(echo "${ETOOLS_FIND_COMMAND//\{repo\}/${2}}" | sed -e "s/{package}/${1}/g")'
 	fi
 }
