@@ -30,7 +30,7 @@ function _formatted_find() {
 			[ "$ETOOLS_DEBUG" = "true" ] && einfo "${ETOOLS_FIND_CMD}" "${2}" "$ETOOLS_FIND_ARGS" "${1}" >&2
 		fi
 	else
-		# TODO: do this with bash expansion only
+		# TODO: do this with bash variable expansion only
 		eval '$(echo "${ETOOLS_FIND_COMMAND//\{repo\}/${2}}" | sed -e "s/{package}/${1}/g")'
 	fi
 }
@@ -78,14 +78,31 @@ function _get_high() {
 function _most_probable() {
 	(( $# == 2 )) && echo "${2//\"/}" && return 0;
 
-	# TODO: maybe don't just test trailing match, but rather excact package name first
-	# eg.: dev-util/devhelp < example/help
+	# check for exact name match
 	for package in "${@:2}"; do
-		# echo "$package"
-		if [[ ${package//\"/} == *"$1" ]]; then
-			echo "${package//\"/}" && return 0;
+		package=${package//\"/}
+		if [[ ${package#*/} == "$1" ]]; then
+			echo "$package" && return 0;
 		fi
 	done
+
+	# check for trailing name match
+	for package in "${@:2}"; do
+		package=${package//\"/}
+		if [[ $package == *"$1" ]]; then
+			echo "$package" && return 0;
+		fi
+	done
+
+	# check for leading name match
+	for package in "${@:2}"; do
+		package=${package//\"/}
+		if [[ $package == "$1"* ]]; then
+			echo "$package" && return 0;
+		fi
+	done
+
+	# TODO: maybe introduce another user function-call hook
 
 	# INFO: at this point we're lucky guessing
 	echo "${2//\"/}"
@@ -116,7 +133,7 @@ function _debug_time() {
 function _filter() {
 	# local start_time=$(date +%s%3N) && echo 0
 	# _debug_time "$start_time"
-	(( $# <= 1 )) && ewarn "No packages found, review config options" && return 1;
+	(( $# <= 0 )) && ewarn "No packages found, review config options" && return 1;
 	declare -Ag _etools_packages
 	for package in "$@"; do
 		package=${package//\"/}

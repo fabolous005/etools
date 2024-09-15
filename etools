@@ -66,17 +66,17 @@ function etools_unset() {
 
 # INFO: einfo function
 einfo() {
-    echo -e " ${ETOOLS_COLOR_INFO}*\033[0m $*"
+    echo -en "${ETOOLS_COLOR_INFO}*\033[0m $*" >&1
 }
 
 # INFO: ewarn function
 ewarn() {
-    echo -e " ${ETOOLS_COLOR_WARN}* WARNING:\033[0m $*"
+    echo -en "${ETOOLS_COLOR_WARN}* WARNING:\033[0m $*" >&2
 }
 
 # INFO: eerror function
 eerror() {
-    echo -e " ${ETOOLS_COLOR_ERROR}* ERROR:\033[0m $*"
+    echo -en "${ETOOLS_COLOR_ERROR}* ERROR:\033[0m $*" >&2
 }
 
 
