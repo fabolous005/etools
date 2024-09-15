@@ -76,17 +76,19 @@ function _get_high() {
 }
 
 function _most_probable() {
-	# echo $*
-	# echo $#
-	# echo $1
-	# echo $2
-	(( $# == 2 )) && echo "$2" && return 0;
+	(( $# == 2 )) && echo "${2//\"/}" && return 0;
+
+	# TODO: maybe don't just test trailing match, but rather excact package name first
+	# eg.: dev-util/devhelp < example/help
 	for package in "${@:2}"; do
 		# echo "$package"
 		if [[ ${package//\"/} == *"$1" ]]; then
 			echo "${package//\"/}" && return 0;
 		fi
 	done
+
+	# INFO: at this point we're lucky guessing
+	echo "${2//\"/}"
 }
 
 function _default_sort() {

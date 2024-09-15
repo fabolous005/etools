@@ -28,7 +28,7 @@ function _configure() {
 	# The Argyments passed to the find command
 	ETOOLS_FIND_ARGS=${ETOOLS_FIND_ARGS:-'''
 	--exclude profiles --exclude scripts --exclude eclass --exclude metadata
-	--exclude dev-perl --exclude dev-ml
+	--exclude dev-perl --exclude dev-ml --exclude app-doc
 	--exclude app-emacs --exclude dev-ruby --exclude acct-user --exclude acct-group
 	--type directory --format '"\"{}\""' --max-depth 3 --case-sensitive'''}
 
