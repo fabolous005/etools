@@ -37,6 +37,7 @@ $HOME/.config/etools/etools.conf
 ```
 
 Look at [the exmaple configuration file](etools.conf) for an example with all configuration options.
+
 For the default values take a look at [config.sh](config.sh).
 
 > **_NOTE:_** Letting already set options fallback to defaults will not work, as defaults only get set when the relative variables are undefined. To force reload:
