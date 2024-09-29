@@ -57,7 +57,7 @@ function etools_get_version() {
 	[ "$ETOOLS_CHECK_LIVE" ] && if _matches_live "$1"; then
 		# use ls over find for simplicity
 		# shellcheck disable=SC2012
-		latest="$(ls -1vr "${ETOOLS_REPO_PATH:-/var/db/repos}"/*/"$1"/*9999*.ebuild | head "-${2:-1}" 2>/dev/null)"
+		latest="$(ls -1vr "${ETOOLS_REPO_PATH:-/var/db/repos}"/*/"$1"/*9999*.ebuild | head -1 2>/dev/null)"
 		[ -n "$latest" ] && _extract_version "$latest" && ./helper.sh && return 0;
 	fi
 	if [ "$ETOOLS_CHECK_TESTING" ]; then
@@ -68,14 +68,14 @@ function etools_get_version() {
 			arch="amd64"
 		fi
 		if [[ "$ACCEPT_KEYWORDS" == *"~$arch"* ]] || _matches_testing "$1" "\~$arch"; then
-			latest=$(_get_latest "$1" "${package_offset[$1]:-0}" "~$arch")
+			latest=$(_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "~$arch")
 		fi
 		[ -n "$latest" ] && _extract_version "$latest" && ./helper.sh && return 0;
 	fi
-	_get_latest "$1" "${package_offset[$1]:-0}" "$arch"
+	_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "$arch"
 
 	[ -n "$latest" ] && _extract_version "$latest" && ./helper.sh && return 0;
-	ewarn "No version found for package: $1$( (( ! ${package_offset[$1]:-0} == 0 )) && echo " with offset $offset")"
+	ewarn "No version found for package: $1$( (( ! ${2:-${package_offset[$1]:-0}} == 0 )) && echo " with offset $offset")"
 }
 
 

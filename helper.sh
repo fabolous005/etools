@@ -200,7 +200,7 @@ function _get_latest() {
 			fi
 		fi
 	done
-	(( ! offset < 0 )) && ewarn "Unused offset of: $offset"
+	(( offset >= 0 )) && ewarn "Unused offset of: $(( offset + 1 )), from specified offset of: $2" "\n"
 	echo "$latest"
 }
 

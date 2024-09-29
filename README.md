@@ -23,7 +23,10 @@ etools_unset
 etools_smart_find <package name> [repo]
 # repo can be a path relative to /var/db/repos/ or a full path
 # default will be /var/db/repos/ so all repos will be searched
-# btw feel free to time it ;)
+eools_get_version <package name> [offset]
+# offset will output the <offset> latest version
+# eg.: when 1.2.3 is latest offset 1 will result in a version 1 beneath 1.2.2-r2 for example
+# btw feel free to time both of them ;)
 ```
 
 ## Configuration
@@ -71,4 +74,3 @@ done <<< $(
     done
 );
 ```
-
