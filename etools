@@ -39,7 +39,47 @@ function etools_smart_find() {
 }
 
 
+# NOTE: get latest enabled version for a given package name
+function etools_get_version() {
+	[ -z "$1" ] && eerror "Pass a package name to this function" "\n" && return 2;
+	[ ! -d ${ETOOLS_REPO_PATH}/*/$1 ] && \
+		[ "$ETOOLS_DEBUG" ] && einfo "checked path ${ETOOLS_REPO_PATH}/*/$1" "\n" && \
+		[ ! -d /var/db/repos/*/$1 ] && \
+		[ "$ETOOLS_DEBUG" ] && einfo "checked path /var/db/repos/*/$1" "\n" && \
+		eerror "Pass a package name to this function" "\n" && \
+		return 2;
+	
+	local latest=:
+	. ./helper.sh
+	[ "$ETOOLS_CHECK_LIVE" ] && if _matches_live "$1"; then
+		latest="$(ls -1vr ${ETOOLS_REPO_PATH:-/var/db/repos}/*/$1/*9999*.ebuild | head "-${2:-1}" 2>/dev/null)"
+		[ -n "$latest" ] && latest=${latest%.ebuild} && latest=${latest##*-} && \
+			./helper.sh && echo "$latest" && return 0;
+	fi
+	if [ "$ETOOLS_CHECK_TESTING" ]; then
+		. /etc/portage/make.conf
+		local arch=:
+		arch=$(uname -m)
+		if [ "$arch" = "x86_64" ]; then
+			arch="amd64"
+		fi
+		if [[ "$ACCEPT_KEYWORDS" == *"~$arch"* ]] || _matches_testing "$1" "\~$arch"; then
+			latest=$(_get_latest "$1" "${package_offset[$1]:-0}" "~$arch")
+		fi
+		[ -n "$latest" ] && latest=${latest%.ebuild} && latest=${latest##*-} && \
+			./helper.sh && echo "$latest" && return 0;
+	fi
+	_get_latest "$1" "${package_offset[$1]:-0}" "$arch"
+
+	# WARN: this will not work for revision, because of the second expansion
+	[ -n "$latest" ] && latest=${latest%.ebuild} && latest=${latest##*-} && \
+		./helper.sh && echo "$latest" && return 0;
+			ewarn "No version found for package: $1$( (( ! offset == 0 )) && echo " with offset $offset")"
+}
+
+
 # INFO: unset all variables
+# TODO: move config options to config unset
 function etools_unset() {
 	for variable in \
 		ETOOLS_FIND_CMD \
@@ -54,12 +94,15 @@ function etools_unset() {
 		ETOOLS_DEBUG \
 		etools_configure \
 		etools_smart_find \
+		etools_get_version \
 		etools_unset \
 		einfo \
 		ewarn \
 		eerror;
 	do
 		unset $variable
+		./helper.sh
+		./config.sh
 	done
 }
 

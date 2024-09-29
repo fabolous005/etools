@@ -11,6 +11,9 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 		_etools_print_assoc_array \
 		_debug_time \
 		_most_probable \
+		_matches_live \
+		_matches_testing \
+		_get_latest \
 		_filter;
 	do
 		unset $function || echo "failed to unset function: $function"
@@ -23,11 +26,11 @@ function _formatted_find() {
 			# use wordsplitting
 			# shellcheck disable=SC2086
 			fd $ETOOLS_FIND_ARGS "${1}" "${2}"
-			[ "$ETOOLS_DEBUG" = "true" ] && einfo fd "${1}" "${2}" "$ETOOLS_FIND_ARGS" >&2
+			[ "$ETOOLS_DEBUG" = "true" ] && einfo fd "${1}" "${2}" "$ETOOLS_FIND_ARGS" "\n" >&2
 		else
 			# shellcheck disable=SC2086
 			"$ETOOLS_FIND_CMD" "${2}" $ETOOLS_FIND_ARGS "${1}"
-			[ "$ETOOLS_DEBUG" = "true" ] && einfo "${ETOOLS_FIND_CMD}" "${2}" "$ETOOLS_FIND_ARGS" "${1}" >&2
+			[ "$ETOOLS_DEBUG" = "true" ] && einfo "${ETOOLS_FIND_CMD}" "${2}" "$ETOOLS_FIND_ARGS" "${1}" "\n" >&2
 		fi
 	else
 		# TODO: do this with bash variable expansion only
@@ -155,4 +158,43 @@ function _filter() {
 	done
 	# _etools_print_assoc_array
 	_get_high
+}
+
+
+function _matches_live() {
+	[ ! -f /etc/portage/package.accept_keywords ] && \
+		[ ! -d /etc/portage/package.accept_keywords ] && \
+		return 1;
+	"$ETOOLS_GREP_CMD" "^=$1-9999" /etc/portage/package.accept_keywords >>/dev/null
+}
+
+function _matches_testing() {
+	[[ "$ACCEPT_KEYWORDS" == *"~amd64"* ]] && return 0;
+	[ ! -f /etc/portage/package.accept_keywords ] && \
+		[ ! -d /etc/portage/package.accept_keywords ] && \
+		return 1;
+
+	"$ETOOLS_GREP_CMD" \
+		"$([ "$ETOOLS_GREP_CMD" == "grep" ] && echo "-E")" \
+		"^$1-[0-9r-]+ *((~|\*)\*|$2)" /etc/portage/package.accept_keywords
+}
+
+function _get_latest() {
+	local offset=$2
+	local latest=:
+	shopt -s globstar nullglob
+	for ebuild in $(ls -1vr /var/db/repos/*/$1/*.ebuild); do
+		if [[ ! "$ebuild" == *"9999"* ]]; then
+			. "$ebuild" >>/dev/null 2>/dev/null
+			if [[ "$KEYWORDS" == *"$3"* ]]; then 
+				latest="$ebuild"
+				offset=$((offset - 1))
+				if (( offset < 0 )); then
+					break;
+				fi
+			fi
+		fi
+	done
+	(( ! offset < 0 )) && ewarn "Unused offset of: $offset"
+	echo "$latest"
 }
