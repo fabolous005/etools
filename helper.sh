@@ -183,9 +183,13 @@ function _matches_testing() {
 function _get_latest() {
 	local offset=$2
 	local latest=:
-	shopt -s globstar nullglob
-	for ebuild in $(ls -1vr /var/db/repos/*/$1/*.ebuild); do
+	# shopt -s globstar nullglob
+	# use ls for simplicity
+	# shellcheck disable=SC2045
+	for ebuild in $(ls -1vr /var/db/repos/*/"$1"/*.ebuild); do
 		if [[ ! "$ebuild" == *"9999"* ]]; then
+			# we can't specify the source for this
+			# shellcheck disable=SC1090
 			. "$ebuild" >>/dev/null 2>/dev/null
 			if [[ "$KEYWORDS" == *"$3"* ]]; then 
 				latest="$ebuild"

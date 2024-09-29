@@ -22,6 +22,7 @@ function etools_smart_find() {
 			eerror "no valid repository name" && return 2;
 		. ./helper.sh
 		if [[ "${2}" == /* ]]; then
+			# rely on word splitting for all of these
 			# shellcheck disable=SC2046
 			_most_probable "$1" $(_filter $(_formatted_find "$@"))
 		else
@@ -42,9 +43,11 @@ function etools_smart_find() {
 # NOTE: get latest enabled version for a given package name
 function etools_get_version() {
 	[ -z "$1" ] && eerror "Pass a package name to this function" "\n" && return 2;
-	[ ! -d ${ETOOLS_REPO_PATH}/*/$1 ] && \
+	# in this case globs work with -d
+	# shellcheck disable=SC2144
+	[ ! -d "${ETOOLS_REPO_PATH}"/*/"$1" ] && \
 		[ "$ETOOLS_DEBUG" ] && einfo "checked path ${ETOOLS_REPO_PATH}/*/$1" "\n" && \
-		[ ! -d /var/db/repos/*/$1 ] && \
+		[ ! -d /var/db/repos/*/"$1" ] && \
 		[ "$ETOOLS_DEBUG" ] && einfo "checked path /var/db/repos/*/$1" "\n" && \
 		eerror "Pass a package name to this function" "\n" && \
 		return 2;
@@ -52,7 +55,9 @@ function etools_get_version() {
 	local latest=:
 	. ./helper.sh
 	[ "$ETOOLS_CHECK_LIVE" ] && if _matches_live "$1"; then
-		latest="$(ls -1vr ${ETOOLS_REPO_PATH:-/var/db/repos}/*/$1/*9999*.ebuild | head "-${2:-1}" 2>/dev/null)"
+		# use ls over find for simplicity
+		# shellcheck disable=SC2012
+		latest="$(ls -1vr "${ETOOLS_REPO_PATH:-/var/db/repos}"/*/"$1"/*9999*.ebuild | head "-${2:-1}" 2>/dev/null)"
 		[ -n "$latest" ] && _extract_version "$latest" && ./helper.sh && return 0;
 	fi
 	if [ "$ETOOLS_CHECK_TESTING" ]; then
