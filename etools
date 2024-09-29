@@ -52,9 +52,8 @@ function etools_get_version() {
 	local latest=:
 	. ./helper.sh
 	[ "$ETOOLS_CHECK_LIVE" ] && if _matches_live "$1"; then
-		latest="$(ls -1vr ${ETOOLS_REPO_PATH:-/var/db/repos}/*/$1/*9999*.ebuild | head "-${2:-1}" 2>/dev/null)"
-		[ -n "$latest" ] && latest=${latest%.ebuild} && latest=${latest##*-} && \
-			./helper.sh && echo "$latest" && return 0;
+		latest="$(ls -1vr "${ETOOLS_REPO_PATH:-/var/db/repos}/*/$1/*9999*.ebuild" | head "-${2:-1}" 2>/dev/null)"
+		[ -n "$latest" ] && _extract_version "$1" && ./helper.sh && return 0;
 	fi
 	if [ "$ETOOLS_CHECK_TESTING" ]; then
 		. /etc/portage/make.conf
@@ -66,15 +65,12 @@ function etools_get_version() {
 		if [[ "$ACCEPT_KEYWORDS" == *"~$arch"* ]] || _matches_testing "$1" "\~$arch"; then
 			latest=$(_get_latest "$1" "${package_offset[$1]:-0}" "~$arch")
 		fi
-		[ -n "$latest" ] && latest=${latest%.ebuild} && latest=${latest##*-} && \
-			./helper.sh && echo "$latest" && return 0;
+		[ -n "$latest" ] && _extract_version "$1" && ./helper.sh && return 0;
 	fi
 	_get_latest "$1" "${package_offset[$1]:-0}" "$arch"
 
-	# WARN: this will not work for revision, because of the second expansion
-	[ -n "$latest" ] && latest=${latest%.ebuild} && latest=${latest##*-} && \
-		./helper.sh && echo "$latest" && return 0;
-			ewarn "No version found for package: $1$( (( ! offset == 0 )) && echo " with offset $offset")"
+	[ -n "$latest" ] && _extract_version "$1" && ./helper.sh && return 0;
+	ewarn "No version found for package: $1$( (( ! offset == 0 )) && echo " with offset $offset")"
 }
 
 

@@ -14,6 +14,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 		_matches_live \
 		_matches_testing \
 		_get_latest \
+		_extract_version \
 		_filter;
 	do
 		unset $function || echo "failed to unset function: $function"
@@ -197,4 +198,14 @@ function _get_latest() {
 	done
 	(( ! offset < 0 )) && ewarn "Unused offset of: $offset"
 	echo "$latest"
+}
+
+function _extract_version() {
+	local ebuild="$1"
+	local revision=:
+	ebuild=${ebuild%.ebuild}
+	revision=$(echo "$ebuild" | sed -n 's/.*\(-r[0-9]\+\).*/\1/p')
+	ebuild=${ebuild/-r[[:digit:]]}
+	ebuild=${ebuild##*=}
+	echo "$ebuild$revision"
 }
