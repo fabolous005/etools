@@ -206,6 +206,6 @@ function _extract_version() {
 	ebuild=${ebuild%.ebuild}
 	revision=$(echo "$ebuild" | sed -n 's/.*\(-r[0-9]\+\).*/\1/p')
 	ebuild=${ebuild/-r[[:digit:]]}
-	ebuild=${ebuild##*=}
+	ebuild=${ebuild##*-}
 	echo "$ebuild$revision"
 }
