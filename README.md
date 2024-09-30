@@ -26,7 +26,10 @@ etools_smart_find <package name> [repo]
 eools_get_version <package name> [offset]
 # offset will output the <offset> latest version
 # eg.: when 1.2.3 is latest offset 1 will result in a version 1 beneath 1.2.2-r2 for example
-# btw feel free to time both of them ;)
+etools_current_version <package> [index]
+# get currently installed version of a package
+# it'll show all version, by specifying the index the n'th version starting at 0 will be displayed
+# btw feel free to time all of them ;)
 ```
 
 ## Configuration

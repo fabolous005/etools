@@ -79,6 +79,36 @@ function etools_get_version() {
 }
 
 
+# NOTE: get currently installed version
+function etools_current_version() {
+	[ -z "$1" ] && eerror "Pass a package name to this function" "\n" && return 2;
+	# for packages with multiple version this errors
+	[ ! -d /var/db/pkg/"$1"-[0-9]* ] 2>/dev/null && \
+		[ "$ETOOLS_DEBUG" ] && einfo "checked path /var/db/pkg/$1-[0-9]*" "\n" && \
+		eerror "Pass a package name to this function" "\n" && \
+		return 2;
+	local latest=:
+	local files_content=()
+	. ./helper.sh
+
+	for file in /var/db/pkg/"$1"-[0-9]*/; do
+		if [[ -d "$file" ]]; then
+			files_content+=("$(<"${file}PF")")
+		fi
+	done
+	[ -z "${files_content[0]}" ] && eerror "Could not find any packages" "\n" && exit 1;
+	if [[ -z "$2" ]]; then
+		for package in "${files_content[@]}"; do
+			_extract_version "$package"
+		done
+		./helper.sh
+	else
+		_extract_version "${files_content[$2]}"
+		./helper.sh
+	fi
+}
+
+
 # INFO: unset all variables
 # TODO: move config options to config unset
 function etools_unset() {
@@ -96,6 +126,7 @@ function etools_unset() {
 		etools_configure \
 		etools_smart_find \
 		etools_get_version \
+		etools_current_version \
 		etools_unset \
 		einfo \
 		ewarn \
