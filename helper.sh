@@ -122,7 +122,7 @@ function _default_sort() {
 	done
 }
 
-function _etools_print_assoc_array {
+function _etools_print_assoc_array() {
     for key in "${!_etools_packages[@]}"; do
         echo "$key: ${_etools_packages[$key]}"
     done
