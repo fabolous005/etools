@@ -200,16 +200,17 @@ function _get_latest() {
 			fi
 		fi
 	done
-	(( offset >= 0 )) && ewarn "Unused offset of: $(( offset + 1 )), from specified offset of: $2" "\n"
+	[ -z "$latest" ] && (( offset < 0 )) && ewarn "Unused offset of: $(( offset + 1 )), from specified offset of: $2" "\n"
 	echo "$latest"
 }
 
 function _extract_version() {
-	local ebuild="$1"
-	local revision=:
-	ebuild=${ebuild%.ebuild}
-	revision=$(echo "$ebuild" | sed -n 's/.*\(-r[0-9]\+\).*/\1/p')
-	ebuild=${ebuild/-r[[:digit:]]}
-	ebuild=${ebuild##*-}
-	echo "$ebuild$revision"
+    local ebuild="$1"
+    local revision=
+	[[ $ebuild =~ (-r[0-9])\.ebuild$ ]] && revision="${BASH_REMATCH[1]}"
+    ebuild=${ebuild%.ebuild}
+    ebuild=${ebuild/-r[[:digit:]]}
+    ebuild=${ebuild##*-}
+    echo "$ebuild$revision"
 }
+

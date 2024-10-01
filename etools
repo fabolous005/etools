@@ -4,9 +4,10 @@
 
 # NOTE: parse config, gets run when sourced
 function etools_configure() {
-	. ./config.sh
+	ETOOLS_DIR=$(dirname "${BASH_SOURCE[0]}")
+	. "$ETOOLS_DIR"/config.sh
 	_configure
-	./config.sh
+	"$ETOOLS_DIR"/config.sh
 }
 
 
@@ -20,7 +21,7 @@ function etools_smart_find() {
 	if [ ! "${2}" = "" ]; then
 		[ ! -d "${2}" ] && [ ! -d "${ETOOLS_REPO_PATH}/${2}" ] && \
 			eerror "no valid repository name" && return 2;
-		. ./helper.sh
+		. "$ETOOLS_DIR"/helper.sh
 		if [[ "${2}" == /* ]]; then
 			# rely on word splitting for all of these
 			# shellcheck disable=SC2046
@@ -30,12 +31,12 @@ function etools_smart_find() {
 			_most_probable "$1" $(_filter $(_formatted_find "${1}" "${ETOOLS_REPO_PATH}/${2}"))
 		fi
 	else
-		. ./helper.sh
+		. "$ETOOLS_DIR"/helper.sh
 		# shellcheck disable=SC2046
 		_most_probable "$1" $(_filter $(_formatted_find "${1}" "/var/db/repos"))
 	fi
 	# unset helper functions
-	./helper.sh
+	"$ETOOLS_DIR"/helper.sh
 	unset _etools_packages
 }
 
@@ -53,12 +54,12 @@ function etools_get_version() {
 		return 2;
 	
 	local latest=:
-	. ./helper.sh
+	. "$ETOOLS_DIR"/helper.sh
 	[ "$ETOOLS_CHECK_LIVE" ] && if _matches_live "$1"; then
 		# use ls over find for simplicity
 		# shellcheck disable=SC2012
 		latest="$(ls -1vr "${ETOOLS_REPO_PATH:-/var/db/repos}"/*/"$1"/*9999*.ebuild | head -1 2>/dev/null)"
-		[ -n "$latest" ] && _extract_version "$latest" && ./helper.sh && return 0;
+		[ -n "$latest" ] && _extract_version "$latest" && "$ETOOLS_DIR"/helper.sh && return 0;
 	fi
 	if [ "$ETOOLS_CHECK_TESTING" ]; then
 		. /etc/portage/make.conf
@@ -70,11 +71,10 @@ function etools_get_version() {
 		if [[ "$ACCEPT_KEYWORDS" == *"~$arch"* ]] || _matches_testing "$1" "\~$arch"; then
 			latest=$(_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "~$arch")
 		fi
-		[ -n "$latest" ] && _extract_version "$latest" && ./helper.sh && return 0;
+		[ -n "$latest" ] && _extract_version "$latest" && "$ETOOLS_DIR"/helper.sh && return 0;
 	fi
-	_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "$arch"
-
-	[ -n "$latest" ] && _extract_version "$latest" && ./helper.sh && return 0;
+	latest=$(_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "$arch")
+	[ -n "$latest" ] && _extract_version "$latest" && "$ETOOLS_DIR"/helper.sh && return 0;
 	ewarn "No version found for package: $1$( (( ! ${2:-${package_offset[$1]:-0}} == 0 )) && echo " with offset $offset")"
 }
 
@@ -89,7 +89,7 @@ function etools_current_version() {
 		return 2;
 	local latest=:
 	local files_content=()
-	. ./helper.sh
+	. "$ETOOLS_DIR"/helper.sh
 
 	for file in /var/db/pkg/"$1"-[0-9]*/; do
 		if [[ -d "$file" ]]; then
@@ -101,10 +101,10 @@ function etools_current_version() {
 		for package in "${files_content[@]}"; do
 			_extract_version "$package"
 		done
-		./helper.sh
+		"$ETOOLS_DIR"/helper.sh
 	else
 		_extract_version "${files_content[$2]}"
-		./helper.sh
+		"$ETOOLS_DIR"/helper.sh
 	fi
 }
 
@@ -133,8 +133,8 @@ function etools_unset() {
 		eerror;
 	do
 		unset $variable
-		./helper.sh
-		./config.sh
+		"$ETOOLS_DIR"/helper.sh
+		"$ETOOLS_DIR"/config.sh
 	done
 }
 
