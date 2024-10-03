@@ -68,8 +68,8 @@ function etools_get_version() {
 		if [ "$arch" = "x86_64" ]; then
 			arch="amd64"
 		fi
-		if [[ "$ACCEPT_KEYWORDS" == *"~$arch"* ]] || _matches_testing "$1" "\~$arch"; then
-			latest=$(_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "~$arch")
+		if [[ "$ACCEPT_KEYWORDS" == *~$arch* ]] || _matches_testing "$1" "~$arch"; then
+			latest=$(_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "$arch")
 		fi
 		[ -n "$latest" ] && _extract_version "$latest" && "$ETOOLS_DIR"/helper.sh && return 0;
 	fi

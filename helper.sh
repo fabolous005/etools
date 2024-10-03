@@ -170,7 +170,7 @@ function _matches_live() {
 }
 
 function _matches_testing() {
-	[[ "$ACCEPT_KEYWORDS" == *"~amd64"* ]] && return 0;
+	[[ "$ACCEPT_KEYWORDS" == *~$3* ]] && return 0;
 	[ ! -f /etc/portage/package.accept_keywords ] && \
 		[ ! -d /etc/portage/package.accept_keywords ] && \
 		return 1;
