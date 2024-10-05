@@ -84,7 +84,8 @@ function etools_get_version() {
 	fi
 	latest=$(_get_latest "$1" "${2:-${package_offset[$1]:-0}}" "$arch")
 	[ -n "$latest" ] && _extract_version "$latest" && "$ETOOLS_DIR"/helper.sh && return 0;
-	ewarn "No version found for package: $1$( (( ! ${2:-${package_offset[$1]:-0}} == 0 )) && echo " with offset $offset")"
+	ewarn "No version found for package: $1$( (( ! ${2:-${package_offset[$1]:-0}} == 0 )) \
+		&& echo " with offset $offset")"
 }
 
 
