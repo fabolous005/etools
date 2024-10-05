@@ -50,15 +50,17 @@ function etools_smart_find() {
 # NOTE: get latest enabled version for a given package name
 function etools_get_version() {
 	[ -z "$1" ] && eerror "Pass a package name to this function" "\n" && return 2;
-	# WARN: turns out ir doesn't
-	# in this case globs work with -d
-	# shellcheck disable=SC2144
-	[ ! -d "${ETOOLS_REPO_PATH}"/*/"$1" ] && \
-		[ "$ETOOLS_DEBUG" ] && einfo "checked path ${ETOOLS_REPO_PATH}/*/$1" "\n" && \
-		[ ! -d /var/db/repos/*/"$1" ] && \
-		[ "$ETOOLS_DEBUG" ] && einfo "checked path /var/db/repos/*/$1" "\n" && \
-		eerror "Pass a package name to this function" "\n" && \
-		return 2;
+	for dir in "$ETOOLS_REPO_PATH"/*/"$1"; do
+		[ ! -d "$dir" ] && \
+			[ "$ETOOLS_DEBUG" ] && einfo "checked path $dir" "\n" && false
+	done || \
+		for dir in /var/db/repos/*/"$1"; do
+			[ ! -d "$dir" ] && \
+			[ "$ETOOLS_DEBUG" ] && einfo "checked path $dir" "\n" && \
+			eerror "Pass a package name to this function" "\n" && \
+			return 2;
+		done
+
 	
 	local latest=:
 	. "$ETOOLS_DIR"/helper.sh
@@ -89,11 +91,13 @@ function etools_get_version() {
 # NOTE: get currently installed version
 function etools_current_version() {
 	[ -z "$1" ] && eerror "Pass a package name to this function" "\n" && return 2;
-	# for packages with multiple version this errors
-	[ ! -d /var/db/pkg/"$1"-[0-9]* ] 2>/dev/null && \
-		[ "$ETOOLS_DEBUG" ] && einfo "checked path /var/db/pkg/$1-[0-9]*" "\n" && \
+	for file in /var/db/pkg/"$1"-[0-9]*; do
+		[ ! -d "$file" ] && {
+			[ "$ETOOLS_DEBUG" == true ] && einfo "checked path $file" "\n"
+		} && \
 		eerror "Pass a package name to this function" "\n" && \
 		return 2;
+	done
 	local latest=:
 	local files_content=()
 	. "$ETOOLS_DIR"/helper.sh
@@ -103,7 +107,7 @@ function etools_current_version() {
 			files_content+=("$(<"${file}PF")")
 		fi
 	done
-	[ -z "${files_content[0]}" ] && eerror "Could not find any packages" "\n" && exit 1;
+	[ -z "${files_content[0]}" ] && eerror "Could not find any packages" "\n" && return 1;
 	if [[ -z "$2" ]]; then
 		for package in "${files_content[@]}"; do
 			_extract_version "$package"
