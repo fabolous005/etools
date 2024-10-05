@@ -4,7 +4,13 @@
 
 # NOTE: parse config, gets run when sourced
 function etools_configure() {
-	ETOOLS_DIR="$PWD/$(dirname "${BASH_SOURCE[0]}")"
+	local location=
+	location=$(dirname "${BASH_SOURCE[0]}")
+	if [[ "$location" == /* ]]; then
+		ETOOLS_DIR=$location
+	else
+		ETOOLS_DIR="$PWD/$location"
+	fi
 	. "$ETOOLS_DIR"/config.sh
 	_configure
 	"$ETOOLS_DIR"/config.sh
@@ -44,6 +50,7 @@ function etools_smart_find() {
 # NOTE: get latest enabled version for a given package name
 function etools_get_version() {
 	[ -z "$1" ] && eerror "Pass a package name to this function" "\n" && return 2;
+	# WARN: turns out ir doesn't
 	# in this case globs work with -d
 	# shellcheck disable=SC2144
 	[ ! -d "${ETOOLS_REPO_PATH}"/*/"$1" ] && \
