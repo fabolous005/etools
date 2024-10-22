@@ -13,3 +13,18 @@ second: 0.12.4
 comparing: 1 and 2
 args[0] = 12.23.34_dev-r43 and args[1] = 0.12.4 and args[2] = 234.34.76-r6
 
+comparing: 0 and 1
+args[0] = 12.23.34_dev-r43 and args[1] = 0.12.4 and args[2] = 234.34.76-r6
+
+comparing: 1 and 2
+args[0] = 12.23.34_dev-r43 and args[1] = 0.12.4 and args[2] = 234.34.76-r6
+
+comparing: 0 and 1
+args[0] = 12.23.34-r43 and args[1] = 0.12.4 and args[2] = 234.34.76-r6
+
+comparing: 1 and 2
+args[0] = 12.23.34-r43 and args[1] = 0.12.4 and args[2] = 234.34.76-r6
+
+comparing: 0 and 1
+args[0] = 12.23.34-r43 and args[1] = 0.12.4 and args[2] = 
+
