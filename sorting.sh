@@ -104,13 +104,36 @@ function pms_inner_sort() {
 	echo "${match1[@]}"
 	echo "${match2[@]}"
 
-	(( match1[0] < match2[0] )) && {
+	if (( match1[0] < match2[0] )); then
 		echo "$2"
 		return 0
-	} || {
+	elif (( match1[0] > match2[0] )); then
 		echo "$1"
 		return 0
-	}
+	fi
+
+	declare -a list1=()
+	declare -a list2=()
+
+	IFS='.' read -r -a vlist1 <<< "${match1[1]:1}"
+	IFS='.' read -r -a vlist2 <<< "${match2[1]:1}"
+	for (( i=0; i<( ${#vlist1[@]} > ${#vlist2[@]} ? ${#vlist1[@]} : ${#vlist2[@]} ); i++ )); do
+		if (( ${#vlist1[@]} <= i || ${#vlist1[$i]} == 0 )); then
+			# echo -e "length: ${#vlist1[@]}\tvalue: ${vlist1[$i]}\tvalue length: ${#vlist1[$i]}"
+			list1+=("-1")
+			list2+=("${vlist2[$i]}")
+		elif (( ${#vlist2[@]} <= i || ${#vlist2[$i]} == 0 )); then
+			list1+=("${vlist1[$i]}")
+			list2+=("-1")
+		elif [[ ${vlist1[$i]} != 0* && ${vlist2[$i]} != 0* ]]; then
+			list1+=("${vlist1[$i]}")
+			list2+=("${vlist2[$i]}")
+		else
+			local max_len=$(( ${#vlist1[$i]} > ${#vlist2[$i]} ? ${#vlist1[$i]} : ${#vlist2[$i]} ))
+			list1+=("$(printf "%-s" "${vlist1[$i]}$(printf "%${max_len}s" | tr ' ' "0")")")
+			list2+=("$(printf "%-s" "${vlist2[$i]}$(printf "%${max_len}s" | tr ' ' "0")")")
+		fi
+	done
 
 	echo "$1"
 }
