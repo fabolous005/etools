@@ -135,5 +135,11 @@ function pms_inner_sort() {
 		fi
 	done
 
+	[[ -n ${match1[3]} ]] && list1+=("$(printf "%d" "'${match1[3]}")")
+	[[ -n ${match2[3]} ]] && list2+=("$(printf "%d" "'${match2[3]}")")
+
+	echo "${list1[@]}"
+	echo "${list2[@]}"
+
 	echo "$1"
 }
