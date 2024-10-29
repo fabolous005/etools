@@ -138,6 +138,25 @@ function pms_inner_sort() {
 	[[ -n ${match1[3]} ]] && list1+=("$(printf "%d" "'${match1[3]}")")
 	[[ -n ${match2[3]} ]] && list2+=("$(printf "%d" "'${match2[3]}")")
 
+	for (( i=0; i<( ${#list1[@]} > ${#list2[@]} ? ${#list1[@]} : ${#list2[@]} ); i++ )); do
+		if (( ${#list1[@]} <= i )); then
+			# WARN: in bash this will expand to exit code 255
+			return -1
+		fi
+		if (( ${#list2[@]} <= i )); then
+			return 1
+		fi
+		if [[ ${list1[$i]} != "${list2[$i]}" ]]; then
+			local a=${list1[$i]}
+			local b=${list2[$i]}
+			local rval=$(( (a > b) - (a < b) ))
+			return $rval
+		fi
+	done
+
+	IFS='_' read -r -a list1 <<< "${match1[4]:1}"
+	IFS='_' read -r -a list2 <<< "${match2[4]:1}"
+
 	echo "${list1[@]}"
 	echo "${list2[@]}"
 
