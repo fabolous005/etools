@@ -207,7 +207,7 @@ function _get_latest() {
 function _extract_version() {
     local ebuild="$1"
     local revision=
-	[[ $ebuild =~ (-r[0-9])\.ebuild$ ]] && revision="${BASH_REMATCH[1]}"
+	[[ $ebuild =~ (-r[0-9]+)(\.ebuild)?$ ]] && echo "matched revision" && revision="${BASH_REMATCH[1]}"
     ebuild=${ebuild%.ebuild}
     ebuild=${ebuild/-r[[:digit:]]}
     ebuild=${ebuild##*-}
